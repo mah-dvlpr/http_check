@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+import 'dart:io';
 import 'package:http_check/http_check.dart' as http_check;
 import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
@@ -31,7 +32,7 @@ void main(List<String> arguments) {
     if (flags['continuous']) {
 
     } else if (flags['generate']) {
-
+      flags.rest.isEmpty ? generateTemplate() : generateTemplate(path: flags.rest);
     } else if (flags['help']) {
 
     }
@@ -41,6 +42,14 @@ void main(List<String> arguments) {
   }
 }
 
-// void generateTemplate({@required String path = './generated'}) {
-
-// }
+/// Generates template files for each provided file (path).
+/// 
+/// If file names (paths) are not provided -> generate a single template file 
+/// called 'generated'.
+/// 
+/// If a file already contains some valid data, make a request to the server as 
+/// requested by the file, ignore patterns as defined by the file, and generate 
+/// (overwrite) the previous expected request data of the file.
+void generateTemplate({List<String> path = const ['generated']}) {
+  
+}
