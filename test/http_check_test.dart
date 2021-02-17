@@ -1,4 +1,4 @@
-import 'package:HTTP_Checker/HTTP_Checker.dart';
+import 'package:http_check/http_check.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,4 +1,4 @@
-import 'package:HTTP_Checker/HTTP_Checker.dart' as http_checker;
+import 'package:http_check/http_check.dart' as http_check;
 import 'package:ansicolor/ansicolor.dart' as color;
 
 void main(List<String> arguments) {

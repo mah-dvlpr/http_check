@@ -1,4 +1,4 @@
-name: HTTP_Checker
+name: http_check
 description: A sample command-line application.
 # version: 1.0.0
 # homepage: https://www.example.com
