@@ -1,7 +1,9 @@
+import 'package:args/command_runner.dart';
 import 'package:http_check/http_check.dart' as http_check;
+import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
-import 'package:ansicolor/ansicolor.dart' as color;
 import 'package:http/http.dart' as http;
+import 'package:ansicolor/ansicolor.dart' as color;
 
   // Flow:
   // Take input (paths to files either relative or absolute)
@@ -17,5 +19,28 @@ import 'package:http/http.dart' as http;
   // 4. Create a compare function
 
 void main(List<String> arguments) {
+  final parser = arg.ArgParser();
+  parser
+    ..addFlag('continuous', abbr: 'c')
+    ..addFlag('generate', abbr: 'g')
+    ..addFlag('help', abbr: 'h');
+  
+  try {
+    final flags = parser.parse(arguments);
 
+    if (flags['continuous']) {
+
+    } else if (flags['generate']) {
+
+    } else if (flags['help']) {
+
+    }
+  } catch(err) {
+    print(err.toString());
+    return;
+  }
 }
+
+// void generateTemplate({@required String path = './generated'}) {
+
+// }
