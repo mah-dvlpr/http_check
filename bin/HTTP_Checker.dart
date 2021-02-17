@@ -1,5 +1,5 @@
-import 'package:HTTP_Checker/HTTP_Checker.dart' as HTTP_Checker;
+import 'package:HTTP_Checker/HTTP_Checker.dart' as http_checker;
 
 void main(List<String> arguments) {
-  print('Hello world: ${HTTP_Checker.calculate()}!');
+  print('Hello world: ${http_checker.calculate()}!');
 }
