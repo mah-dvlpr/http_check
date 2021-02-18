@@ -58,7 +58,7 @@ void main(List<String> arguments) {
     final flags = parser.parse(arguments);
 
     if (flags['continuous']) {
-      // run_loop(file_paths: flags.rest);
+      run_loop(file_paths: flags.rest);
     } else if (flags['generate']) {
       flags.rest.isEmpty ? generateTemplate() : generateTemplate(file_paths: flags.rest);
     } else if (flags['help']) {
@@ -72,10 +72,16 @@ void main(List<String> arguments) {
   }
 }
 
+void run_loop({@required List<String> file_paths}) {
+  while (true) {
+    run(file_paths: file_paths);
+  }
+}
+
 /// TODO: Add doc...
 void run({@required List<String> file_paths}) {
   File file;
-  List<String> lines, request, ignore, body, expected;
+  List<String> lines, name, request, ignore, body, expected;
   for (var file_path in file_paths) {
     file = File(file_path);
 
@@ -90,12 +96,12 @@ void run({@required List<String> file_paths}) {
 
     // Get response
     lines = file.readAsLinesSync();
-    getNextSegment(lines); // Skip name segment
+    name = getNextSegment(lines); // Skip name segment
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
     body = getNextSegment(lines);
     expected = getNextSegment(lines, last_segment: true);
-    getResponseAndCompare(file, request, ignore, body, expected);
+    getResponseAndCompare(file, name, request, ignore, body, expected);
   }
 }
 
@@ -186,7 +192,7 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
   }
 }
 
-void getResponseAndCompare(File file, List<String> request, List<String> ignore, List<String> body, List<String> expected) async {
+void getResponseAndCompare(File file, List<String> name, List<String> request, List<String> ignore, List<String> body, List<String> expected) async {
   var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
@@ -196,7 +202,15 @@ void getResponseAndCompare(File file, List<String> request, List<String> ignore,
   }
 
   // Compare with expected
-  // TODO
+  var pen = color.AnsiPen();
+  var ok_fail = 'OK';
+  if (response.trim() == expected.join('\n').trim()) {
+    pen.green(bold: true);
+  } else {
+    ok_fail = 'FAILED';
+    pen.red(bold: true);
+  }
+  print(pen('${ok_fail}') + ' - ${name[0]}');
 }
 
 void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore, List<String> body) async {
