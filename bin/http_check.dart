@@ -47,7 +47,7 @@ void main(List<String> arguments) {
     } else if (flags['help']) {
       // TODO: Add help section
     } else {
-      run(file_paths: flags.rest);
+      run_once(file_paths: flags.rest);
     }
   } catch(err) {
     print(err.toString());
@@ -61,14 +61,14 @@ void run_loop({@required List<String> file_paths}) async {
     stdout.write('===== New run at ');
     stdout.write(Process.runSync("date", ['+%T'], runInShell: true).stdout.toString().trim());
     stdout.write(' =====\n');
-    await run(file_paths: file_paths);
+    await run_once(file_paths: file_paths);
     await Future.delayed(Duration(seconds: 5));
     print(Process.runSync("clear", [], runInShell: true).stdout);
   }
 }
 
 /// TODO: Add doc...
-void run({@required List<String> file_paths}) async {
+void run_once({@required List<String> file_paths}) async {
   File file;
   List<String> lines, name, request, ignore, body, expected;
   for (var file_path in file_paths) {
