@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
 import 'package:http/http.dart' as http;
 import 'package:ansicolor/ansicolor.dart' as color;
+import 'package:path/path.dart';
 
 // Flow:
 // Take input (paths to files either relative or absolute)
@@ -37,6 +38,7 @@ GET / HTTP/1.1
 Host: httpbin.org
 ${delim}
 date: .* GMT
+"X-Amzn-Trace-Id.*\\n 
 ${delim}
 Body data (Only for POST requests). This will be ignored with GET requests.
 Remove/Update this segment if you whish to make a POST request instead.
@@ -56,15 +58,44 @@ void main(List<String> arguments) {
     final flags = parser.parse(arguments);
 
     if (flags['continuous']) {
-
+      // run_loop(file_paths: flags.rest);
     } else if (flags['generate']) {
       flags.rest.isEmpty ? generateTemplate() : generateTemplate(file_paths: flags.rest);
     } else if (flags['help']) {
 
+    } else {
+      run(file_paths: flags.rest);
     }
   } catch(err) {
     print(err.toString());
     return;
+  }
+}
+
+/// TODO: Add doc...
+void run({@required List<String> file_paths}) {
+  File file;
+  List<String> lines, request, ignore, body, expected;
+  for (var file_path in file_paths) {
+    file = File(file_path);
+
+    if (!file.existsSync()) {
+      throw PathException('File \'${file.path}\' does not exist at path.');
+    }
+
+    if (file.lengthSync() == 0) {
+      file.writeAsStringSync(request_file_template);
+      throw FormatException('File \'${file.path}\' is empty.');
+    }
+
+    // Get response
+    lines = file.readAsLinesSync();
+    getNextSegment(lines); // Skip name segment
+    request = getNextSegment(lines);
+    ignore = getNextSegment(lines);
+    body = getNextSegment(lines);
+    expected = getNextSegment(lines, last_segment: true);
+    getResponseAndCompare(file, request, ignore, body, expected);
   }
 }
 
@@ -77,7 +108,7 @@ void checkDelim(String str) {
 
 /// Forwards the list (by removing the part segmented by the delimiter), 
 /// and returns the current segment.
-List<String> getNextSegment(List<String> lines) {
+List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
   checkDelim(lines[0]);
   var start = 1;
   var stop = start + 1;
@@ -86,7 +117,9 @@ List<String> getNextSegment(List<String> lines) {
   } else {
     for (; stop < lines.length && lines[stop] != delim; stop++) {};
   }
-  checkDelim(lines[stop]);
+  if (!last_segment) {
+    checkDelim(lines[stop]);
+  }
   var ret = lines.sublist(start, stop);
   lines.removeRange(0, stop);
   return ret;
@@ -151,6 +184,19 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
     body = getNextSegment(lines);
     generateAndWriteExpectedResponse(file, request, ignore, body);
   }
+}
+
+void getResponseAndCompare(File file, List<String> request, List<String> ignore, List<String> body, List<String> expected) async {
+  var response = await getResponse(request, body: body);
+
+  // Ignore shenanigans
+  for (var i = 0; i < ignore.length; i++) {
+    // response = response.split(ignore[i]).join('#IGNORED#');
+    response = response.replaceAll(RegExp('${ignore[i]}'), '#IGNORED#');
+  }
+
+  // Compare with expected
+  // TODO
 }
 
 void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore, List<String> body) async {
