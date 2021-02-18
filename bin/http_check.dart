@@ -36,7 +36,7 @@ http://google.com
 GET / HTTP/1.1
 Host: google.com
 ${delim}
-date
+date: .* GMT
 ${delim}
 Body data (Only for POST requests). This will be ignored with GET requests.
 Remove/Update this segment if you whish to make a POST request instead.
@@ -150,40 +150,17 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
     generateAndWriteExpectedResponse(file, request, ignore);
-
-
-    // Create new file
-    // lines = File(file).readAsLinesSync();
-    // name = lines[0];
-
-    // lines = lines.sublist(1);
-    // delimCheck(lines[0]);
-    // lines = lines.sublist(1);
-
-    // Read request
-
-
-    // Read ignores
-
-    // Read expected response
-
-      // Read 
-      // print("hej");
-    //   line.compareTo(other)
-      
-    //   // if (_.length == 1 && _.toString() == delim) {
-    //     // print(lines);
-    //   // }
-    //   // Read each line until a delimiter is encountered
-    //   // 
-    // }
   }
 }
 
 void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore) async {
   var response = await getResponse(request);
 
-  // TODO: Ignore shenanigans
+  // Ignore shenanigans
+  for (var i = 0; i < ignore.length; i++) {
+    // response = response.split(ignore[i]).join('#IGNORED#');
+    response = response.replaceAll(RegExp('${ignore[i]}'), '#IGNORED#');
+  }
 
   // Write back to file
   var file_data = file.readAsLinesSync();
