@@ -30,11 +30,11 @@ import 'package:ansicolor/ansicolor.dart' as color;
 const delim = '#####';
 const delim_count = 5;
 const request_file_template = '''${delim}
-generated request_file_template
+generated request_file_template (Write your own test name here!)
 ${delim}
-http://google.com
+https://httpbin.org/get
 GET / HTTP/1.1
-Host: google.com
+Host: httpbin.org
 ${delim}
 date: .* GMT
 ${delim}
@@ -110,7 +110,7 @@ Future<String> getResponse(List<String> request, {List<String> body}) async {
       response = await http.get(url, headers: headers);
       break;
     case 'POST':
-      response = await http.post(url, headers: headers, body: body);
+      response = await http.post(url, headers: headers, body: body.join('\n'));
       break;
     default:
   }
