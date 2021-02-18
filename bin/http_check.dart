@@ -29,8 +29,8 @@ import 'package:ansicolor/ansicolor.dart' as color;
 /// Delimiter between request file segments
 const delim = '#####';
 const delim_count = 5;
-const template = '''${delim}
-generated template
+const request_file_template = '''${delim}
+generated request_file_template
 ${delim}
 http://google.com
 GET / HTTP/1.1
@@ -122,10 +122,10 @@ Future<String> getResponse(List<String> request, {String body}) async {
   return ret;
 }
 
-/// Generates template files for each provided file (path).
+/// Generates request template files for each provided file (path).
 /// 
-/// If file names (paths) are not provided -> generate a single template file 
-/// called 'generated'.
+/// If file names (paths) are not provided -> generate a single request template
+///  file called 'generated'.
 /// 
 /// If a file already contains some valid data, make a request to the server as 
 /// requested by the file, ignore patterns as defined by the file, and generate 
@@ -141,7 +141,7 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
     }
 
     if (file.lengthSync() == 0) {
-      file.writeAsStringSync(template);
+      file.writeAsStringSync(request_file_template);
     }
 
     // Generate expected response
