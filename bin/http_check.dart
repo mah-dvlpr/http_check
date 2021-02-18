@@ -4,25 +4,11 @@ import 'dart:async';
 
 import 'package:http_check/http_check.dart' as http_check;
 
-import 'package:args/command_runner.dart';
 import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
 import 'package:http/http.dart' as http;
 import 'package:ansicolor/ansicolor.dart' as color;
 import 'package:path/path.dart';
-
-// Flow:
-// Take input (paths to files either relative or absolute)
-// For each file:
-  // Make request with data from file content
-  // Ignore parts according to file content
-  // Compare to response with expected response (also stored in file)
-
-// TODO:
-// 1. Create a generator function
-// 2. Create a request function
-// 3. Create a ignore function
-// 4. Create a compare function
 
 // TODO: Extras
 // 1. Make some parts (such as reading files) asynchronous.
@@ -72,14 +58,14 @@ void main(List<String> arguments) {
   }
 }
 
-void run_loop({@required List<String> file_paths}) {
+void run_loop({@required List<String> file_paths}) async {
   while (true) {
-    run(file_paths: file_paths);
+    await run(file_paths: file_paths);
   }
 }
 
 /// TODO: Add doc...
-void run({@required List<String> file_paths}) {
+void run({@required List<String> file_paths}) async {
   File file;
   List<String> lines, name, request, ignore, body, expected;
   for (var file_path in file_paths) {
@@ -101,7 +87,7 @@ void run({@required List<String> file_paths}) {
     ignore = getNextSegment(lines);
     body = getNextSegment(lines);
     expected = getNextSegment(lines, last_segment: true);
-    getResponseAndCompare(file, name, request, ignore, body, expected);
+    await getResponseAndCompare(file, name, request, ignore, body, expected);
   }
 }
 
