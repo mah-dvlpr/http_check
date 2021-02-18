@@ -93,7 +93,7 @@ List<String> getNextSegment(List<String> lines) {
 }
 
 /// Makes a request and returns 
-Future<String> getResponse(List<String> request, {String body}) async {
+Future<String> getResponse(List<String> request, {List<String> body}) async {
   var url = request[0];
   var method = request[1].split(' ')[0];
   var headers = <String, String>{};
@@ -103,7 +103,6 @@ Future<String> getResponse(List<String> request, {String body}) async {
     headers[name] = value;
   }
 
-  // TODO: Depending on GET or post...
   String ret;
   http.Response response;
   switch (method) {
@@ -132,7 +131,7 @@ Future<String> getResponse(List<String> request, {String body}) async {
 /// (overwrite) the previous expected request data of the file.
 void generateTemplate({List<String> file_paths = const ['generated']}) {
   File file;
-  List<String> lines, request, ignore;
+  List<String> lines, request, ignore, body;
   for (var file_path in file_paths) {
     file = File(file_path);
 
@@ -149,12 +148,13 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
     getNextSegment(lines); // Skip name segment
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
-    generateAndWriteExpectedResponse(file, request, ignore);
+    body = getNextSegment(lines);
+    generateAndWriteExpectedResponse(file, request, ignore, body);
   }
 }
 
-void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore) async {
-  var response = await getResponse(request);
+void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore, List<String> body) async {
+  var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
   for (var i = 0; i < ignore.length; i++) {
