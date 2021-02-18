@@ -196,10 +196,9 @@ void getResponseAndCompare(File file, List<String> name, List<String> request, L
   var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
-  for (var i = 0; i < ignore.length; i++) {
-    // response = response.split(ignore[i]).join('#IGNORED#');
-    response = response.replaceAll(RegExp('${ignore[i]}'), '#IGNORED#');
-  }
+  ignore.forEach((element) {
+    response = response.replaceAll(RegExp('${element}'), '#IGNORED#');
+  });
 
   // Compare with expected
   var pen = color.AnsiPen();
@@ -217,10 +216,9 @@ void generateAndWriteExpectedResponse(File file, List<String> request, List<Stri
   var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
-  for (var i = 0; i < ignore.length; i++) {
-    // response = response.split(ignore[i]).join('#IGNORED#');
-    response = response.replaceAll(RegExp('${ignore[i]}'), '#IGNORED#');
-  }
+  ignore.forEach((element) {
+    response = response.replaceAll(RegExp('${element}'), '#IGNORED#');
+  });
 
   // Write back to file
   var file_data = file.readAsLinesSync();
