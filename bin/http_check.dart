@@ -125,7 +125,7 @@ List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
 }
 
 /// Makes a request and returns
-Future<String> getResponse(List<String> request, List<String> ignore, 
+Future<String> getResponse(List<String> request, List<String> ignore,
     {List<String> body}) async {
   var url = request[0];
   var method = request[1].split(' ')[0];
@@ -154,8 +154,7 @@ Future<String> getResponse(List<String> request, List<String> ignore,
 
   // Ignore shenanigans
   ignore.forEach((element) {
-    ret = ret.replaceAll(
-        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
+    ret = ret.replaceAll(RegExp('${element}'), '#IGNORED -> \"${element}\"#');
   });
 
   return ret;
