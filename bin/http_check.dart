@@ -32,10 +32,18 @@ const delim_count = 4;
 const template = '''${delim}
 generated template
 ${delim}
-https://google.com
+http://google.com
 GET / HTTP/1.1
 Host: google.com
-${delim}''';
+${delim}
+date
+${delim}
+Body data (Only for POST requests). This will be ignored with GET requests.
+Remove/Update this segment if you whish to make a POST request instead.
+${delim}
+Response HEADERS
++
+Response BODY''';
 
 void main(List<String> arguments) {
   final parser = arg.ArgParser();
@@ -124,9 +132,14 @@ Future<String> getResponse(List<String> request, {String body}) async {
 /// (overwrite) the previous expected request data of the file.
 void generateTemplate({List<String> file_paths = const ['generated']}) {
   File file;
-  List<String> lines, request, ignore, response;
+  List<String> lines, request, ignore;
   for (var file_path in file_paths) {
     file = File(file_path);
+
+    // if (!file.existsSync()) {
+    //   file.writeAsStringSync(contents)
+    // }
+
     if (file.existsSync()) {
       // Generate expected response
       lines = file.readAsLinesSync();
@@ -134,8 +147,11 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
       request = getNextSegment(lines);
       ignore = getNextSegment(lines);
       generateAndWriteExpectedResponse(file, request, ignore);
-      continue;
+    } else {
+      // Create new file from template
+      // 
     }
+
 
     // Create new file
     // lines = File(file).readAsLinesSync();
