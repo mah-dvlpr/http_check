@@ -59,8 +59,14 @@ void main(List<String> arguments) {
 }
 
 void run_loop({@required List<String> file_paths}) async {
+  print(Process.runSync("clear", [], runInShell: true).stdout);
   while (true) {
+    stdout.write('===== New run at ');
+    stdout.write(Process.runSync("date", ['+%T'], runInShell: true).stdout.toString().trim());
+    stdout.write(' =====\n');
     await run(file_paths: file_paths);
+    await Future.delayed(Duration(seconds: 5));
+    print(Process.runSync("clear", [], runInShell: true).stdout);
   }
 }
 
