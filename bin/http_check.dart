@@ -125,7 +125,8 @@ List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
 }
 
 /// Makes a request and returns
-Future<String> getResponse(List<String> request, {List<String> body}) async {
+Future<String> getResponse(List<String> request, List<String> ignore, 
+    {List<String> body}) async {
   var url = request[0];
   var method = request[1].split(' ')[0];
   var headers = <String, String>{};
@@ -150,6 +151,13 @@ Future<String> getResponse(List<String> request, {List<String> body}) async {
     ret = '${ret}${key}: ${value}\n';
   });
   ret = '${ret}\n${response.body}';
+
+  // Ignore shenanigans
+  ignore.forEach((element) {
+    ret = ret.replaceAll(
+        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
+  });
+
   return ret;
 }
 
@@ -187,13 +195,7 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
 
 void getResponseAndCompare(File file, List<String> name, List<String> request,
     List<String> ignore, List<String> body, List<String> expected) async {
-  var response = await getResponse(request, body: body);
-
-  // Ignore shenanigans
-  ignore.forEach((element) {
-    response = response.replaceAll(
-        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
-  });
+  var response = await getResponse(request, ignore, body: body);
 
   // Compare with expected
   var ok_fail = ansi_styles.AnsiStyles.bold.greenBright('OK');
@@ -205,13 +207,7 @@ void getResponseAndCompare(File file, List<String> name, List<String> request,
 
 void generateAndWriteExpectedResponse(File file, List<String> request,
     List<String> ignore, List<String> body) async {
-  var response = await getResponse(request, body: body);
-
-  // Ignore shenanigans
-  ignore.forEach((element) {
-    response = response.replaceAll(
-        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
-  });
+  var response = await getResponse(request, ignore, body: body);
 
   // Write back to file
   var file_data = file.readAsLinesSync();
