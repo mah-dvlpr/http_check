@@ -28,7 +28,7 @@ import 'package:ansicolor/ansicolor.dart' as color;
 
 /// Delimiter between request file segments
 const delim = '#####';
-const delim_count = 4;
+const delim_count = 5;
 const template = '''${delim}
 generated template
 ${delim}
@@ -136,21 +136,20 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
   for (var file_path in file_paths) {
     file = File(file_path);
 
-    // if (!file.existsSync()) {
-    //   file.writeAsStringSync(contents)
-    // }
-
-    if (file.existsSync()) {
-      // Generate expected response
-      lines = file.readAsLinesSync();
-      getNextSegment(lines); // Skip name segment
-      request = getNextSegment(lines);
-      ignore = getNextSegment(lines);
-      generateAndWriteExpectedResponse(file, request, ignore);
-    } else {
-      // Create new file from template
-      // 
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
     }
+
+    if (file.lengthSync() == 0) {
+      file.writeAsStringSync(template);
+    }
+
+    // Generate expected response
+    lines = file.readAsLinesSync();
+    getNextSegment(lines); // Skip name segment
+    request = getNextSegment(lines);
+    ignore = getNextSegment(lines);
+    generateAndWriteExpectedResponse(file, request, ignore);
 
 
     // Create new file
