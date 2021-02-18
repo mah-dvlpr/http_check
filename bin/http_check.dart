@@ -23,7 +23,7 @@ date: .* GMT
 "X-Amzn-Trace-Id.*\\n 
 ${delim}
 Body data (Only for POST requests). This will be ignored with GET requests.
-Remove/Update this segment if you whish to make a POST request instead.
+Remove/Update this segment if you wish to make a POST request instead.
 ${delim}
 Response HEADERS
 +
