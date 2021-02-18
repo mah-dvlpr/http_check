@@ -7,13 +7,10 @@ import 'package:http_check/http_check.dart' as http_check;
 import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
 import 'package:http/http.dart' as http;
-import 'package:ansicolor/ansicolor.dart' as color;
+
+import 'package:ansi_styles/ansi_styles.dart' as ansi_styles;
 import 'package:path/path.dart';
 
-// TODO: Extras
-// 1. Make some parts (such as reading files) asynchronous.
-
-/// Delimiter between request file segments
 const delim = '#####';
 const delim_count = 5;
 const request_file_template = '''${delim}
@@ -48,7 +45,7 @@ void main(List<String> arguments) {
     } else if (flags['generate']) {
       flags.rest.isEmpty ? generateTemplate() : generateTemplate(file_paths: flags.rest);
     } else if (flags['help']) {
-
+      // TODO: Add help section
     } else {
       run(file_paths: flags.rest);
     }
@@ -189,19 +186,15 @@ void getResponseAndCompare(File file, List<String> name, List<String> request, L
 
   // Ignore shenanigans
   ignore.forEach((element) {
-    response = response.replaceAll(RegExp('${element}'), '#IGNORED#');
+    response = response.replaceAll(RegExp('${element}'), '#IGNORED -> \"${element}\"#');
   });
 
   // Compare with expected
-  var pen = color.AnsiPen();
-  var ok_fail = 'OK';
-  if (response.trim() == expected.join('\n').trim()) {
-    pen.green(bold: true);
-  } else {
-    ok_fail = 'FAILED';
-    pen.red(bold: true);
+  var ok_fail = ansi_styles.AnsiStyles.bold.greenBright('OK');
+  if (response.trim() != expected.join('\n').trim()) {
+    ok_fail = ansi_styles.AnsiStyles.bold.redBright('FAILED');
   }
-  print(pen('${ok_fail}') + ' - ${name[0]}');
+  print('${ok_fail} - ${name[0]}');
 }
 
 void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore, List<String> body) async {
@@ -209,7 +202,7 @@ void generateAndWriteExpectedResponse(File file, List<String> request, List<Stri
 
   // Ignore shenanigans
   ignore.forEach((element) {
-    response = response.replaceAll(RegExp('${element}'), '#IGNORED#');
+    response = response.replaceAll(RegExp('${element}'), '#IGNORED -> \"${element}\"#');
   });
 
   // Write back to file
