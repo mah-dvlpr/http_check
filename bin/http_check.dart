@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:async';
-// import 'dart:collection';
 
 import 'package:http_check/http_check.dart' as http_check;
 
@@ -36,20 +35,22 @@ void main(List<String> arguments) {
     ..addFlag('continuous', abbr: 'c')
     ..addFlag('generate', abbr: 'g')
     ..addFlag('help', abbr: 'h');
-  
+
   try {
     final flags = parser.parse(arguments);
 
     if (flags['continuous']) {
       run_loop(file_paths: flags.rest);
     } else if (flags['generate']) {
-      flags.rest.isEmpty ? generateTemplate() : generateTemplate(file_paths: flags.rest);
+      flags.rest.isEmpty
+          ? generateTemplate()
+          : generateTemplate(file_paths: flags.rest);
     } else if (flags['help']) {
       // TODO: Add help section
     } else {
       run_once(file_paths: flags.rest);
     }
-  } catch(err) {
+  } catch (err) {
     print(err.toString());
     return;
   }
@@ -59,7 +60,10 @@ void run_loop({@required List<String> file_paths}) async {
   print(Process.runSync("clear", [], runInShell: true).stdout);
   while (true) {
     stdout.write('===== New run at ');
-    stdout.write(Process.runSync("date", ['+%T'], runInShell: true).stdout.toString().trim());
+    stdout.write(Process.runSync("date", ['+%T'], runInShell: true)
+        .stdout
+        .toString()
+        .trim());
     stdout.write(' =====\n');
     await run_once(file_paths: file_paths);
     await Future.delayed(Duration(seconds: 5));
@@ -101,7 +105,7 @@ void checkDelim(String str) {
   }
 }
 
-/// Forwards the list (by removing the part segmented by the delimiter), 
+/// Forwards the list (by removing the part segmented by the delimiter),
 /// and returns the current segment.
 List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
   checkDelim(lines[0]);
@@ -110,7 +114,7 @@ List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
   if (lines[start] == delim) {
     stop = start;
   } else {
-    for (; stop < lines.length && lines[stop] != delim; stop++) {};
+    for (; stop < lines.length && lines[stop] != delim; stop++) {}
   }
   if (!last_segment) {
     checkDelim(lines[stop]);
@@ -120,7 +124,7 @@ List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
   return ret;
 }
 
-/// Makes a request and returns 
+/// Makes a request and returns
 Future<String> getResponse(List<String> request, {List<String> body}) async {
   var url = request[0];
   var method = request[1].split(' ')[0];
@@ -142,7 +146,7 @@ Future<String> getResponse(List<String> request, {List<String> body}) async {
       break;
     default:
   }
-  response.headers.forEach((key, value) { 
+  response.headers.forEach((key, value) {
     ret = '${ret}${key}: ${value}\n';
   });
   ret = '${ret}\n${response.body}';
@@ -150,12 +154,12 @@ Future<String> getResponse(List<String> request, {List<String> body}) async {
 }
 
 /// Generates request template files for each provided file (path).
-/// 
+///
 /// If file names (paths) are not provided -> generate a single request template
 ///  file called 'generated'.
-/// 
-/// If a file already contains some valid data, make a request to the server as 
-/// requested by the file, ignore patterns as defined by the file, and generate 
+///
+/// If a file already contains some valid data, make a request to the server as
+/// requested by the file, ignore patterns as defined by the file, and generate
 /// (overwrite) the previous expected request data of the file.
 void generateTemplate({List<String> file_paths = const ['generated']}) {
   File file;
@@ -181,12 +185,14 @@ void generateTemplate({List<String> file_paths = const ['generated']}) {
   }
 }
 
-void getResponseAndCompare(File file, List<String> name, List<String> request, List<String> ignore, List<String> body, List<String> expected) async {
+void getResponseAndCompare(File file, List<String> name, List<String> request,
+    List<String> ignore, List<String> body, List<String> expected) async {
   var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
   ignore.forEach((element) {
-    response = response.replaceAll(RegExp('${element}'), '#IGNORED -> \"${element}\"#');
+    response = response.replaceAll(
+        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
   });
 
   // Compare with expected
@@ -197,12 +203,14 @@ void getResponseAndCompare(File file, List<String> name, List<String> request, L
   print('${ok_fail} - ${name[0]}');
 }
 
-void generateAndWriteExpectedResponse(File file, List<String> request, List<String> ignore, List<String> body) async {
+void generateAndWriteExpectedResponse(File file, List<String> request,
+    List<String> ignore, List<String> body) async {
   var response = await getResponse(request, body: body);
 
   // Ignore shenanigans
   ignore.forEach((element) {
-    response = response.replaceAll(RegExp('${element}'), '#IGNORED -> \"${element}\"#');
+    response = response.replaceAll(
+        RegExp('${element}'), '#IGNORED -> \"${element}\"#');
   });
 
   // Write back to file
