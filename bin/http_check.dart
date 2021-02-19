@@ -195,7 +195,17 @@ Future<String> getResponse(List<String> request, List<String> ignore,
     case 'POST':
       response = await http.post(url, headers: headers, body: body.join('\n'));
       break;
+    case 'PATCH':
+      response = await http.patch(url, headers: headers, body: body.join('\n'));
+      break;
+    case 'PUT':
+      response = await http.put(url, headers: headers, body: body.join('\n'));
+      break;
+    case 'DELETE':
+      response = await http.delete(url, headers: headers);
+      break;
     default:
+      throw HttpException('Method currently not supported!');
   }
   response.headers.forEach((key, value) {
     ret = '${ret}${key}: ${value}\n';
