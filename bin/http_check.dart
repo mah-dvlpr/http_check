@@ -251,20 +251,23 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
   var frame = 0;
   var period = 100; // milliseconds
 
-  /// Clear animation
-  void clear() {
+  void next_frame() {
+    print('\x1B[1m${frames[frame++%frames.length]}\n');
+  }
+
+  void clear_frame() {
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
   }
 
   while (true) {
-    print('\x1B[1m${frames[frame++%frames.length]}\n');
+    next_frame();
     try {
       await if_done_exit.timeout(Duration(milliseconds: period));
       break;
     } catch (err) {
       // Do nothing...
     }
-    clear();
+    clear_frame();
   }
 
   // clear();
