@@ -65,8 +65,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
     var time = DateTime.now().millisecondsSinceEpoch;
 
     future = run_once(file_paths: file_paths);
-    // unawaited(animate(future));
-    run = await future;
+    run = await animate(future);
 
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
