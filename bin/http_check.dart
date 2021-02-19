@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 
 import 'package:ansi_styles/ansi_styles.dart' as ansi_styles;
 import 'package:path/path.dart';
-import 'package:pedantic/pedantic.dart';
 
 const delim = '#####';
 const delim_count = 5;
@@ -262,6 +261,7 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
 
   while (true) {
     next_frame();
+    // Now this is ugly... I'm sorry
     try {
       await if_done_exit.timeout(Duration(milliseconds: period));
       break;
