@@ -9,10 +9,11 @@ import 'package:http/http.dart' as http;
 
 import 'package:ansi_styles/ansi_styles.dart' as ansi_styles;
 import 'package:path/path.dart';
+import 'package:pedantic/pedantic.dart';
 
 const delim = '#####';
 const delim_count = 5;
-const time_restriction = 5;
+const time_restriction = 5000;
 const request_file_template = '''${delim}
 generated request_file_template (Write your own test name here!)
 ${delim}
@@ -65,12 +66,28 @@ Future<void> run_loop({@required List<String> file_paths}) async {
     run = await run_once(file_paths: file_paths);
 
     // Wait a minimum of [time_restriction] seconds before resuming.
-    time = (DateTime.now().millisecondsSinceEpoch - time) ~/ 1000;
+    time = DateTime.now().millisecondsSinceEpoch - time;
     time = (time >= time_restriction) ? 0 : time_restriction - time;
-    await Future.delayed(Duration(seconds: time));
+    // unawaited(animate(time));
+    await Future.delayed(Duration(milliseconds: time));
 
     // print('\x1B[2J\x1B[0;0H');
   }
+}
+
+Future<void> animate(int seconds) async {
+  var frames = const <String>[
+			'⢄',
+			'⢂',
+			'⢁',
+			'⡁',
+			'⡈',
+			'⡐',
+			'⡠'
+		];
+
+  var time = DateTime.now().millisecondsSinceEpoch;
+  print("hej");
 }
 
 /// TODO: Add doc...
