@@ -97,6 +97,38 @@ void run_once({@required List<String> file_paths}) async {
   }
 }
 
+/// Generates request template files for each provided file (path).
+///
+/// If file names (paths) are not provided -> generate a single request template
+///  file called 'generated'.
+///
+/// If a file already contains some valid data, make a request to the server as
+/// requested by the file, ignore patterns as defined by the file, and generate
+/// (overwrite) the previous expected request data of the file.
+void generateTemplate({List<String> file_paths = const ['generated']}) {
+  File file;
+  List<String> lines, request, ignore, body;
+  for (var file_path in file_paths) {
+    file = File(file_path);
+
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
+    }
+
+    if (file.lengthSync() == 0) {
+      file.writeAsStringSync(request_file_template);
+    }
+
+    // Generate expected response
+    lines = file.readAsLinesSync();
+    getNextSegment(lines); // Skip name segment
+    request = getNextSegment(lines);
+    ignore = getNextSegment(lines);
+    body = getNextSegment(lines);
+    generateAndWriteExpectedResponse(file, request, ignore, body);
+  }
+}
+
 /// Throws an error if given string does not match the delimiter.
 void checkDelim(String str) {
   if (str != delim) {
@@ -105,7 +137,7 @@ void checkDelim(String str) {
 }
 
 /// Forwards the list (by removing the part segmented by the delimiter),
-/// and returns the current segment.
+/// and returns the current (i.e. the skipped) segment.
 List<String> getNextSegment(List<String> lines, {bool last_segment = false}) {
   checkDelim(lines[0]);
   var start = 1;
@@ -157,38 +189,6 @@ Future<String> getResponse(List<String> request, List<String> ignore,
   });
 
   return ret;
-}
-
-/// Generates request template files for each provided file (path).
-///
-/// If file names (paths) are not provided -> generate a single request template
-///  file called 'generated'.
-///
-/// If a file already contains some valid data, make a request to the server as
-/// requested by the file, ignore patterns as defined by the file, and generate
-/// (overwrite) the previous expected request data of the file.
-void generateTemplate({List<String> file_paths = const ['generated']}) {
-  File file;
-  List<String> lines, request, ignore, body;
-  for (var file_path in file_paths) {
-    file = File(file_path);
-
-    if (!file.existsSync()) {
-      file.createSync(recursive: true);
-    }
-
-    if (file.lengthSync() == 0) {
-      file.writeAsStringSync(request_file_template);
-    }
-
-    // Generate expected response
-    lines = file.readAsLinesSync();
-    getNextSegment(lines); // Skip name segment
-    request = getNextSegment(lines);
-    ignore = getNextSegment(lines);
-    body = getNextSegment(lines);
-    generateAndWriteExpectedResponse(file, request, ignore, body);
-  }
 }
 
 void getResponseAndCompare(File file, List<String> name, List<String> request,
