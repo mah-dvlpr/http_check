@@ -250,19 +250,21 @@ void generateAndWriteExpectedResponse(File file, List<String> request,
 
 Future<T> animate<T>(Future<T> if_done_exit) async {
   var frames = const <String>[
-			'⢄',
-			'⢂',
-			'⢁',
-			'⡁',
-			'⡈',
-			'⡐',
-			'⡠'
-		];
+      '⠁',
+      '⠂',
+      '⠄',
+      '⡀',
+      '⢀',
+      '⠠',
+      '⠐',
+      '⠈'
+    ];
   var frame = 0;
   var period = 100; // milliseconds
+  var snake_length = (8 * 1) + 1; // (8 frames x length of snake) + 1 to make it animated.
 
   void next_frame() {
-    print('\x1B[1m${frames[frame++]}\x1B[m\n');
+    stdout.write('\x1B[1m${frames[frame++]}\x1B[m');
     frame %= frames.length;
   }
 
@@ -271,7 +273,10 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
   }
 
   while (true) {
-    next_frame();
+    for (var i = 0; i < snake_length; i++) {
+      next_frame();
+    }
+    stdout.write('\n\n');
     // Now this is ugly... I'm sorry
     try {
       await if_done_exit.timeout(Duration(milliseconds: period));
