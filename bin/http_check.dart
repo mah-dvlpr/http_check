@@ -83,7 +83,6 @@ void run_once({@required List<String> file_paths}) async {
     }
 
     if (file.lengthSync() == 0) {
-      file.writeAsStringSync(request_file_template);
       throw FormatException('File \'${file.path}\' is empty.');
     }
 
