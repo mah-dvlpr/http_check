@@ -225,6 +225,10 @@ Future<bool> getResponseAndCompare(List<String> request, List<String> ignore,
     List<String> body, List<String> expected) async {
   var response = await getResponse(request, ignore, body: body);
 
+  // CRLF is nasty! Remove it!
+  expected.forEach((element) {element.replaceAll('\r\n', '\n');});
+  response.replaceAll('\r\n', '\n');
+
   if (response.trim() != expected.join('\n').trim()) {
     return false;
   }
