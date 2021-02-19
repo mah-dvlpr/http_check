@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:math';
 
 import 'package:http_check/http_check.dart' as http_check;
 
@@ -61,6 +60,7 @@ void main(List<String> arguments) {
 
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
+  Future animation;
   while (run) {
     var time = DateTime.now().millisecondsSinceEpoch;
 
@@ -69,10 +69,10 @@ Future<void> run_loop({@required List<String> file_paths}) async {
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
     time = (time >= time_restriction) ? 0 : time_restriction - time;
-    unawaited(animate(time));
+    animation = animate(time);
     await Future.delayed(Duration(milliseconds: time));
-
-    // print('\x1B[2J\x1B[0;0H');
+    await animation;
+    print('\x1B[2J\x1B[0;0H'); // Clear screen
   }
 }
 
@@ -86,11 +86,14 @@ Future<void> animate(int milliseconds) async {
 			'⡐',
 			'⡠'
 		];
-  var num = Random().nextInt(10);
+  var frame = 0;
+  var period = 100; // Milliseconds
+
   var time = DateTime.now().millisecondsSinceEpoch;
-  while (DateTime.now().millisecondsSinceEpoch - time < milliseconds) {
-    await Future.delayed(Duration(seconds: 1));
-    print(num);
+  while (DateTime.now().millisecondsSinceEpoch - time < milliseconds - period) {
+    print(frames[frame++%frames.length]);
+    await Future.delayed(Duration(milliseconds: period));
+    stdout.write('\x1B[1A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
   }
 }
 
