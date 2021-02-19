@@ -60,7 +60,7 @@ void main(List<String> arguments) {
 
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
-  Future animation;
+  Future future;
   while (run) {
     var time = DateTime.now().millisecondsSinceEpoch;
 
@@ -69,31 +69,9 @@ Future<void> run_loop({@required List<String> file_paths}) async {
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
     time = (time >= time_restriction) ? 0 : time_restriction - time;
-    animation = animate(time);
-    await Future.delayed(Duration(milliseconds: time));
-    await animation;
+    future = Future.delayed(Duration(milliseconds: time));
+    await animate(future);
     print('\x1B[2J\x1B[0;0H'); // Clear screen
-  }
-}
-
-Future<void> animate(int milliseconds) async {
-  var frames = const <String>[
-			'⢄',
-			'⢂',
-			'⢁',
-			'⡁',
-			'⡈',
-			'⡐',
-			'⡠'
-		];
-  var frame = 0;
-  var period = 100; // Milliseconds
-
-  var time = DateTime.now().millisecondsSinceEpoch;
-  while (DateTime.now().millisecondsSinceEpoch - time < milliseconds - period) {
-    print(frames[frame++%frames.length]);
-    await Future.delayed(Duration(milliseconds: period));
-    stdout.write('\x1B[1A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
   }
 }
 
@@ -105,6 +83,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
   List<String> lines, name, request, ignore, body, expected;
   var futures = <Future<bool>>[];
   var results = <bool>[];
+  // var animation = animate(milliseconds)
 
   // Get response for each file
   for (var file_path in file_paths) {
@@ -260,4 +239,26 @@ void generateAndWriteExpectedResponse(File file, List<String> request,
   file_data.removeRange(response_start, file_data.length);
   file_data.add(response);
   file.writeAsStringSync(file_data.join('\n'), mode: FileMode.writeOnly);
+}
+
+Future<void> animate(Future if_done_exit) async {
+  var frames = const <String>[
+			'⢄',
+			'⢂',
+			'⢁',
+			'⡁',
+			'⡈',
+			'⡐',
+			'⡠'
+		];
+  var frame = 0;
+  var period = 100; // milliseconds
+
+  while (true) {
+    print('\x1B[1m${frames[frame++%frames.length]}\n');
+    if (await if_done_exit.timeout(Duration(milliseconds: period), onTimeout: () => 'hej') != 'hej') {
+      break;
+    }
+    stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
+  }
 }
