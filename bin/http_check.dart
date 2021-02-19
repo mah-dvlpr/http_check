@@ -73,6 +73,7 @@ void run_loop({@required List<String> file_paths}) async {
 
 /// TODO: Add doc...
 void run_once({@required List<String> file_paths}) async {
+  print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
   File file;
   List<String> lines, name, request, ignore, body, expected;
   for (var file_path in file_paths) {
