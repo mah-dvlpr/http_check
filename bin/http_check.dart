@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 
 const delim = '#####';
 const delim_count = 5;
+const time_restriction = 5;
 const request_file_template = '''${delim}
 generated request_file_template (Write your own test name here!)
 ${delim}
@@ -57,23 +58,17 @@ void main(List<String> arguments) {
 }
 
 Future<void> run_loop({@required List<String> file_paths}) async {
-  print(Process.runSync("clear", [], runInShell: true).stdout);
-  while (true) {
-    stdout.write('===== New run at ');
-    stdout.write(Process.runSync("date", ['+%T'], runInShell: true)
-        .stdout
-        .toString()
-        .trim());
-    stdout.write(' =====\n');
-    await run_once(file_paths: file_paths);
-    await Future.delayed(Duration(seconds: 5));
-    print(Process.runSync("clear", [], runInShell: true).stdout);
+  var run = true;
+  while (run) {
+    run = await run_once(file_paths: file_paths);
   }
 }
 
 /// TODO: Add doc...
-Future<void> run_once({@required List<String> file_paths}) async {
+Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
+
+  var time = DateTime.now().millisecondsSinceEpoch;
 
   File file;
   List<String> lines, name, request, ignore, body, expected;
@@ -110,6 +105,13 @@ Future<void> run_once({@required List<String> file_paths}) async {
       print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} - ${name[0]}');
     }
   });
+
+  // Wait a minimum of [time_restriction] seconds before returning.
+  time = (DateTime.now().millisecondsSinceEpoch - time) ~/ 1000;
+  time = (time >= time_restriction) ? 0 : time_restriction - time;
+  await Future.delayed(Duration(seconds: time));
+
+  return true;
 }
 
 /// Generates request template files for each provided file (path).
