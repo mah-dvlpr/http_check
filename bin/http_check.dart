@@ -107,9 +107,9 @@ Future<bool> run_once({@required List<String> file_paths}) async {
   results = await Future.wait(futures);
   for (var i = 0; i < results.length; i++) {
     if (results[i]) {
-      print('${ansi_styles.AnsiStyles.bold.greenBright('OK')} \t- ${names[i]}');
+      print('${ansi_styles.AnsiStyles.bold.greenBright('OK')}\t- ${names[i]}');
     } else {
-      print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} \t- ${names[i]}');
+      print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')}\t- ${names[i]}');
     }
   }
 
