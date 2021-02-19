@@ -12,7 +12,7 @@ import 'package:path/path.dart';
 
 const delim = '#####';
 const delim_count = 5;
-const time_restriction = 5000;
+const time_restriction = 10000;
 const request_file_template = '''${delim}
 generated request_file_template (Write your own test name here!)
 ${delim}
@@ -262,7 +262,7 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
   var period = 100; // milliseconds
 
   void next_frame() {
-    print('\x1B[1m${frames[frame++]}\n');
+    print('\x1B[1m${frames[frame++]}\x1B[m\n');
     frame %= frames.length;
   }
 
