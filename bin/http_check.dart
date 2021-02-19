@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:math';
 
 import 'package:http_check/http_check.dart' as http_check;
 
@@ -68,14 +69,14 @@ Future<void> run_loop({@required List<String> file_paths}) async {
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
     time = (time >= time_restriction) ? 0 : time_restriction - time;
-    // unawaited(animate(time));
+    unawaited(animate(time));
     await Future.delayed(Duration(milliseconds: time));
 
     // print('\x1B[2J\x1B[0;0H');
   }
 }
 
-Future<void> animate(int seconds) async {
+Future<void> animate(int milliseconds) async {
   var frames = const <String>[
 			'⢄',
 			'⢂',
@@ -85,9 +86,12 @@ Future<void> animate(int seconds) async {
 			'⡐',
 			'⡠'
 		];
-
+  var num = Random().nextInt(10);
   var time = DateTime.now().millisecondsSinceEpoch;
-  print("hej");
+  while (DateTime.now().millisecondsSinceEpoch - time < milliseconds) {
+    await Future.delayed(Duration(seconds: 1));
+    print(num);
+  }
 }
 
 /// TODO: Add doc...
