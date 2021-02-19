@@ -64,7 +64,9 @@ Future<void> run_loop({@required List<String> file_paths}) async {
   while (run) {
     var time = DateTime.now().millisecondsSinceEpoch;
 
-    run = await run_once(file_paths: file_paths);
+    future = run_once(file_paths: file_paths);
+    // unawaited(animate(future));
+    run = await future;
 
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
@@ -83,7 +85,6 @@ Future<bool> run_once({@required List<String> file_paths}) async {
   List<String> lines, name, request, ignore, body, expected;
   var futures = <Future<bool>>[];
   var results = <bool>[];
-  // var animation = animate(milliseconds)
 
   // Get response for each file
   for (var file_path in file_paths) {
@@ -241,7 +242,7 @@ void generateAndWriteExpectedResponse(File file, List<String> request,
   file.writeAsStringSync(file_data.join('\n'), mode: FileMode.writeOnly);
 }
 
-Future<void> animate(Future if_done_exit) async {
+Future<T> animate<T>(Future<T> if_done_exit) async {
   var frames = const <String>[
 			'⢄',
 			'⢂',
@@ -262,4 +263,6 @@ Future<void> animate(Future if_done_exit) async {
     }
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
   }
+
+  return if_done_exit;
 }
