@@ -62,7 +62,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
   while (run) {
     var time = DateTime.now().millisecondsSinceEpoch;
 
-    run = await animate(run_once(file_paths: file_paths));
+    run = await run_once(file_paths: file_paths);
 
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
@@ -77,7 +77,8 @@ Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
   File file;
-  List<String> lines, name, request, ignore, body, expected;
+  List<String> lines, request, ignore, body, expected;
+  var names = <String>[];
   var futures = <Future<bool>>[];
   var results = <bool>[];
 
@@ -94,23 +95,23 @@ Future<bool> run_once({@required List<String> file_paths}) async {
     }
 
     lines = file.readAsLinesSync();
-    name = getNextSegment(lines);
+    names.add(getNextSegment(lines)[0]);
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
     body = getNextSegment(lines);
     expected = getNextSegment(lines, last_segment: true);
-    futures.add(getResponseAndCompare(file, name, request, ignore, body, expected));
+    futures.add(getResponseAndCompare(request, ignore, body, expected));
   }
 
   // Print results
   results = await Future.wait(futures);
-  results.forEach((result) {
-    if (result) {
-      print('${ansi_styles.AnsiStyles.bold.greenBright('OK')} - ${name[0]}');
+  for (var i = 0; i < results.length; i++) {
+    if (results[i]) {
+      print('${ansi_styles.AnsiStyles.bold.greenBright('OK')} \t- ${names[i]}');
     } else {
-      print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} - ${name[0]}');
+      print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} \t- ${names[i]}');
     }
-  });
+  }
 
   return true;
 }
@@ -209,8 +210,8 @@ Future<String> getResponse(List<String> request, List<String> ignore,
   return ret;
 }
 
-Future<bool> getResponseAndCompare(File file, List<String> name, List<String> request,
-    List<String> ignore, List<String> body, List<String> expected) async {
+Future<bool> getResponseAndCompare(List<String> request, List<String> ignore,
+    List<String> body, List<String> expected) async {
   var response = await getResponse(request, ignore, body: body);
 
   if (response.trim() != expected.join('\n').trim()) {
