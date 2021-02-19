@@ -6,6 +6,7 @@ import 'package:http_check/http_check.dart' as http_check;
 import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
 import 'package:http/http.dart' as http;
+import 'package:pedantic/pedantic.dart';
 
 import 'package:ansi_styles/ansi_styles.dart' as ansi_styles;
 import 'package:path/path.dart';
@@ -272,18 +273,14 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
   }
 
-  while (true) {
+  var run = true;
+  unawaited(if_done_exit.whenComplete(() => run = true));
+  while (run) {
     for (var i = 0; i < snake_length; i++) {
       next_frame();
     }
     stdout.write('\n\n');
-    // Now this is ugly... I'm sorry
-    try {
-      await if_done_exit.timeout(Duration(milliseconds: period));
-      break;
-    } catch (err) {
-      // Do nothing...
-    }
+    sleep(Duration(milliseconds: period));
     clear_frame();
   }
 
