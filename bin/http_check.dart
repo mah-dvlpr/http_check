@@ -77,7 +77,7 @@ void run_once({@required List<String> file_paths}) async {
   File file;
   List<String> lines, name, request, ignore, body, expected;
   for (var file_path in file_paths) {
-    file = File(file_path);
+    file = File(file_path); 
 
     if (!file.existsSync()) {
       throw PathException('File \'${file.path}\' does not exist at path.');
@@ -89,7 +89,7 @@ void run_once({@required List<String> file_paths}) async {
 
     // Get response
     lines = file.readAsLinesSync();
-    name = getNextSegment(lines); // Skip name segment
+    name = getNextSegment(lines);
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
     body = getNextSegment(lines);
