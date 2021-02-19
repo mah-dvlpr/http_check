@@ -253,10 +253,11 @@ Future<void> animate(Future if_done_exit) async {
 		];
   var frame = 0;
   var period = 100; // milliseconds
+  var dummy = Object();
 
   while (true) {
     print('\x1B[1m${frames[frame++%frames.length]}\n');
-    if (await if_done_exit.timeout(Duration(milliseconds: period), onTimeout: () => 'hej') != 'hej') {
+    if (!identical(await if_done_exit.timeout(Duration(milliseconds: period), onTimeout: () => dummy), dummy)) {
       break;
     }
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
