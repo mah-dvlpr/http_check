@@ -60,15 +60,22 @@ void main(List<String> arguments) {
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
   while (run) {
+    var time = DateTime.now().millisecondsSinceEpoch;
+
     run = await run_once(file_paths: file_paths);
+
+    // Wait a minimum of [time_restriction] seconds before resuming.
+    time = (DateTime.now().millisecondsSinceEpoch - time) ~/ 1000;
+    time = (time >= time_restriction) ? 0 : time_restriction - time;
+    await Future.delayed(Duration(seconds: time));
+
+    // print('\x1B[2J\x1B[0;0H');
   }
 }
 
 /// TODO: Add doc...
 Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
-
-  var time = DateTime.now().millisecondsSinceEpoch;
 
   File file;
   List<String> lines, name, request, ignore, body, expected;
@@ -105,11 +112,6 @@ Future<bool> run_once({@required List<String> file_paths}) async {
       print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} - ${name[0]}');
     }
   });
-
-  // Wait a minimum of [time_restriction] seconds before returning.
-  time = (DateTime.now().millisecondsSinceEpoch - time) ~/ 1000;
-  time = (time >= time_restriction) ? 0 : time_restriction - time;
-  await Future.delayed(Duration(seconds: time));
 
   return true;
 }
