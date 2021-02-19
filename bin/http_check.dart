@@ -60,18 +60,15 @@ void main(List<String> arguments) {
 
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
-  Future future;
   while (run) {
     var time = DateTime.now().millisecondsSinceEpoch;
 
-    future = run_once(file_paths: file_paths);
-    run = await animate(future);
+    run = await animate(run_once(file_paths: file_paths));
 
     // Wait a minimum of [time_restriction] seconds before resuming.
     time = DateTime.now().millisecondsSinceEpoch - time;
     time = (time >= time_restriction) ? 0 : time_restriction - time;
-    future = Future.delayed(Duration(milliseconds: time));
-    await animate(future);
+    await animate(Future.delayed(Duration(milliseconds: time)));
     print('\x1B[2J\x1B[0;0H'); // Clear screen
   }
 }
@@ -253,15 +250,23 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
 		];
   var frame = 0;
   var period = 100; // milliseconds
-  var dummy = Object();
+
+  /// Clear animation
+  void clear() {
+    stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
+  }
 
   while (true) {
     print('\x1B[1m${frames[frame++%frames.length]}\n');
-    if (!identical(await if_done_exit.timeout(Duration(milliseconds: period), onTimeout: () => dummy), dummy)) {
+    try {
+      await if_done_exit.timeout(Duration(milliseconds: period));
       break;
+    } catch (err) {
+      // Do nothing...
     }
-    stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Erase the line above and move to column 1
+    clear();
   }
 
+  // clear();
   return if_done_exit;
 }
