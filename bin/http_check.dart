@@ -56,7 +56,7 @@ void main(List<String> arguments) {
   }
 }
 
-void run_loop({@required List<String> file_paths}) async {
+Future<void> run_loop({@required List<String> file_paths}) async {
   print(Process.runSync("clear", [], runInShell: true).stdout);
   while (true) {
     stdout.write('===== New run at ');
@@ -72,10 +72,15 @@ void run_loop({@required List<String> file_paths}) async {
 }
 
 /// TODO: Add doc...
-void run_once({@required List<String> file_paths}) async {
+Future<void> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
+
   File file;
   List<String> lines, name, request, ignore, body, expected;
+  var futures = <Future<bool>>[];
+  var results = <bool>[];
+
+  // Get response for each file
   for (var file_path in file_paths) {
     file = File(file_path); 
 
@@ -87,15 +92,24 @@ void run_once({@required List<String> file_paths}) async {
       throw FormatException('File \'${file.path}\' is empty.');
     }
 
-    // Get response
     lines = file.readAsLinesSync();
     name = getNextSegment(lines);
     request = getNextSegment(lines);
     ignore = getNextSegment(lines);
     body = getNextSegment(lines);
     expected = getNextSegment(lines, last_segment: true);
-    await getResponseAndCompare(file, name, request, ignore, body, expected);
+    futures.add(getResponseAndCompare(file, name, request, ignore, body, expected));
   }
+
+  // Print results
+  results = await Future.wait(futures);
+  results.forEach((result) {
+    if (result) {
+      print('${ansi_styles.AnsiStyles.bold.greenBright('OK')} - ${name[0]}');
+    } else {
+      print('${ansi_styles.AnsiStyles.bold.redBright('FAILED')} - ${name[0]}');
+    }
+  });
 }
 
 /// Generates request template files for each provided file (path).
@@ -192,16 +206,14 @@ Future<String> getResponse(List<String> request, List<String> ignore,
   return ret;
 }
 
-void getResponseAndCompare(File file, List<String> name, List<String> request,
+Future<bool> getResponseAndCompare(File file, List<String> name, List<String> request,
     List<String> ignore, List<String> body, List<String> expected) async {
   var response = await getResponse(request, ignore, body: body);
 
-  // Compare with expected
-  var ok_fail = ansi_styles.AnsiStyles.bold.greenBright('OK');
   if (response.trim() != expected.join('\n').trim()) {
-    ok_fail = ansi_styles.AnsiStyles.bold.redBright('FAILED');
+    return false;
   }
-  print('${ok_fail} - ${name[0]}');
+  return true;
 }
 
 void generateAndWriteExpectedResponse(File file, List<String> request,
