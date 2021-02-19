@@ -252,7 +252,8 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
   var period = 100; // milliseconds
 
   void next_frame() {
-    print('\x1B[1m${frames[frame++%frames.length]}\n');
+    print('\x1B[1m${frames[frame++]}\n');
+    frame %= frames.length;
   }
 
   void clear_frame() {
