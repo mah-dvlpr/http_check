@@ -1,11 +1,26 @@
 #####
-generated request_file_template (Write your own test name here!)
+PATCH
 #####
 https://httpbin.org/patch
 GET / HTTP/1.1
 Host: httpbin.org
 #####
+date:.*GMT
+"X-Amzn-Trace-Id": ".*"
 #####
 Body data (Only for POST requests). This will be ignored with GET requests.
 Remove/Update this segment if you wish to make a POST request instead.
 #####
+nullaccess-control-allow-credentials: true
+connection: keep-alive
+#IGNORED -> "date:.*GMT"#
+access-control-allow-origin: *
+content-length: 178
+content-type: text/html
+server: gunicorn/19.9.0
+allow: PATCH, OPTIONS
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p>

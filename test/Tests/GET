@@ -1,11 +1,33 @@
 #####
-generated request_file_template (Write your own test name here!)
+GET
 #####
 https://httpbin.org/get
 GET / HTTP/1.1
 Host: httpbin.org
 #####
+date:.*GMT
+"X-Amzn-Trace-Id": ".*"
 #####
 Body data (Only for POST requests). This will be ignored with GET requests.
 Remove/Update this segment if you wish to make a POST request instead.
 #####
+nullconnection: keep-alive
+access-control-allow-credentials: true
+#IGNORED -> "date:.*GMT"#
+access-control-allow-origin: *
+content-length: 300
+content-type: application/json
+server: gunicorn/19.9.0
+
+{
+  "args": {}, 
+  "headers": {
+    "Accept-Encoding": "gzip", 
+    "Content-Length": "0", 
+    "Host": "httpbin.org", 
+    "User-Agent": "Dart/2.12 (dart:io)", 
+    #IGNORED -> ""X-Amzn-Trace-Id": ".*""#
+  }, 
+  "origin": "155.4.151.73", 
+  "url": "https://httpbin.org/get"
+}
