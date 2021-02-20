@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:http_check/http_check.dart' as http_check;
 
@@ -61,14 +62,14 @@ void main(List<String> arguments) {
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
   while (run) {
-    var time = DateTime.now().millisecondsSinceEpoch;
+    // var time = DateTime.now().millisecondsSinceEpoch;
 
     run = await run_once(file_paths: file_paths);
 
-    // Wait a minimum of [time_restriction] seconds before resuming.
-    time = DateTime.now().millisecondsSinceEpoch - time;
-    time = (time >= time_restriction) ? 0 : time_restriction - time;
-    await animate(Future.delayed(Duration(milliseconds: time)));
+    // Wait a minimum of [time_restriction] seconds before resuming. TODO: Remove
+    // time = DateTime.now().millisecondsSinceEpoch - time;
+    // time = (time >= time_restriction) ? 0 : time_restriction - time;
+    // await animate(Future.delayed(Duration(milliseconds: time)));
     print('\x1B[2J\x1B[0;0H'); // Clear screen
   }
 }
@@ -76,6 +77,10 @@ Future<void> run_loop({@required List<String> file_paths}) async {
 /// TODO: Add doc...
 Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
+
+  // Start loading animation
+  var rp = ReceivePort();
+  var animation_isolate = await Isolate.spawn(animate, rp.sendPort);
 
   File file;
   List<String> lines, request, ignore, body, expected;
@@ -106,6 +111,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
 
   // Print results
   results = await Future.wait(futures);
+  animation_isolate.kill(priority: Isolate.immediate);
   for (var i = 0; i < results.length; i++) {
     if (results[i]) {
       print('${ansi_styles.AnsiStyles.bold.greenBright('OK')}\t- ${names[i]}');
@@ -253,7 +259,7 @@ void generateAndWriteExpectedResponse(File file, List<String> request,
   file.writeAsStringSync(file_data.join('\n'), mode: FileMode.writeOnly);
 }
 
-Future<T> animate<T>(Future<T> if_done_exit) async {
+void animate(SendPort sp) {
   var frames = const <String>[
       '⠁',
       '⠂',
@@ -277,8 +283,11 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
   }
 
+  // // Set up messaging with callin isolate
+  // var rp = ReceivePort();
+  // sp.send(rp.sendPort);
+
   var run = true;
-  unawaited(if_done_exit.whenComplete(() => run = true));
   while (run) {
     for (var i = 0; i < snake_length; i++) {
       next_frame();
@@ -287,7 +296,4 @@ Future<T> animate<T>(Future<T> if_done_exit) async {
     sleep(Duration(milliseconds: period));
     clear_frame();
   }
-
-  // clear();
-  return if_done_exit;
 }
