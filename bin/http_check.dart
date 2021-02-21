@@ -14,7 +14,6 @@ import 'package:path/path.dart';
 
 const delim = '#####';
 const delim_count = 5;
-const time_restriction = 10000;
 const request_file_template = '''${delim}
 generated request_file_template (Write your own test name here!)
 ${delim}
@@ -32,18 +31,22 @@ Response HEADERS
 +
 Response BODY''';
 
-void main(List<String> arguments) {
+Isolate animation_isolate;
+
+void main(List<String> arguments) async {
   final parser = arg.ArgParser();
   parser
     ..addFlag('continuous', abbr: 'c')
     ..addFlag('generate', abbr: 'g')
     ..addFlag('help', abbr: 'h');
 
+  animation_isolate = await Isolate.spawn(animate, null, paused: true);
+
   try {
     final flags = parser.parse(arguments);
 
     if (flags['continuous']) {
-      run_loop(file_paths: flags.rest);
+      await run_loop(file_paths: flags.rest);
     } else if (flags['generate']) {
       flags.rest.isEmpty
           ? generateTemplate()
@@ -51,7 +54,7 @@ void main(List<String> arguments) {
     } else if (flags['help']) {
       // TODO: Add help section
     } else {
-      run_once(file_paths: flags.rest);
+      await run_once(file_paths: flags.rest);
     }
   } catch (err) {
     print(err.toString());
@@ -62,15 +65,9 @@ void main(List<String> arguments) {
 Future<void> run_loop({@required List<String> file_paths}) async {
   var run = true;
   while (run) {
-    // var time = DateTime.now().millisecondsSinceEpoch;
-
     run = await run_once(file_paths: file_paths);
-
-    // Wait a minimum of [time_restriction] seconds before resuming. TODO: Remove
-    // time = DateTime.now().millisecondsSinceEpoch - time;
-    // time = (time >= time_restriction) ? 0 : time_restriction - time;
-    // await animate(Future.delayed(Duration(milliseconds: time)));
-    print('\x1B[2J\x1B[0;0H'); // Clear screen
+    sleep(Duration(seconds: 4));  // Keep results on screen for a while.
+    print('\x1B[2J\x1B[0;0H');    // Clear the screen.
   }
 }
 
@@ -78,9 +75,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
 Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
-  // Start loading animation
-  var rp = ReceivePort();
-  var animation_isolate = await Isolate.spawn(animate, rp.sendPort);
+  animation_isolate.resume(animation_isolate.pauseCapability);
 
   File file;
   List<String> lines, request, ignore, body, expected;
@@ -111,7 +106,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
 
   // Print results
   results = await Future.wait(futures);
-  animation_isolate.kill(priority: Isolate.immediate);
+  animation_isolate.pause(animation_isolate.pauseCapability);
   for (var i = 0; i < results.length; i++) {
     if (results[i]) {
       print('${ansi_styles.AnsiStyles.bold.greenBright('OK')}\t- ${names[i]}');
@@ -120,7 +115,6 @@ Future<bool> run_once({@required List<String> file_paths}) async {
     }
   }
 
-  rp.close();
   return true;
 }
 
@@ -260,7 +254,7 @@ void generateAndWriteExpectedResponse(File file, List<String> request,
   file.writeAsStringSync(file_data.join('\n'), mode: FileMode.writeOnly);
 }
 
-void animate(SendPort sp) {
+void animate(SendPort sp) async {
   var frames = const <String>[
       '⠁',
       '⠂',
@@ -292,9 +286,9 @@ void animate(SendPort sp) {
   while (run) {
     for (var i = 0; i < snake_length; i++) {
       next_frame();
-    }
+    } 
     stdout.write('\n\n');
-    sleep(Duration(milliseconds: period));
+    await Future.delayed(Duration(milliseconds: period));
     clear_frame();
   }
 }
