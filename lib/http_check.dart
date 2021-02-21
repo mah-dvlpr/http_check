@@ -25,8 +25,7 @@ Future<void> _animate(SendPort sp) async {
       '⠈'
     ];
   var baseFrame = 0;
-  var period = 100; // milliseconds
-  var terminalColumns = 0;
+  var period = 10; // milliseconds
 
   void nextFrame(int frame) {
     stdout.write('\x1B[1m${frames[frame]}\x1B[m');
@@ -34,19 +33,14 @@ Future<void> _animate(SendPort sp) async {
 
   void clearFrame() {
     stdout.write('\x1B[2K\x1B[1G');
-    if (terminalColumns > stdout.terminalColumns) {
-      stdout.write('\x1B[1A\x1B[2K\x1B[1G'); // Clear an extra line
-    }
   }
 
   while (true) {
-    terminalColumns = stdout.terminalColumns;
-    for (var frame = baseFrame; frame < terminalColumns + baseFrame; frame++) {
+    for (var frame = baseFrame; frame < stdout.terminalColumns + baseFrame; frame++) {
       nextFrame(frame % frames.length);
     }
     baseFrame = (baseFrame + 1) % frames.length;
-    sleep(Duration(milliseconds: period*4));
-    await Future.delayed(Duration());
+    sleep(Duration(milliseconds: period));
     clearFrame();
   }
 }
