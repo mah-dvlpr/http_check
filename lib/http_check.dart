@@ -24,28 +24,30 @@ Future<void> _animate(SendPort sp) async {
       '⠐',
       '⠈'
     ];
-  var frame = 0;
+  var base_frame = 0;
   var period = 100; // milliseconds
-  var snake_length = (8 * 1) + 1; // (8 frames x length of snake) + 1 to make it animated.
+  var terminal_width = 0;
 
-  void next_frame() {
-    stdout.write('\x1B[1m${frames[frame++]}\x1B[m');
-    frame %= frames.length;
+  void next_frame(int frame) {
+    stdout.write('\x1B[1m${frames[frame]}\x1B[m');
   }
 
   void clear_frame() {
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
   }
 
-  var run = true;
-  while (run) {
-    for (var i = 0; i < snake_length; i++) {
-      next_frame();
-    } 
+  while (true) {
+    terminal_width = stdout.terminalColumns;
+    for (var frame = base_frame; frame < terminal_width + base_frame; frame++) {
+      next_frame(frame % frames.length);
+    }
+    base_frame = (base_frame + 1) % frames.length;
     stdout.write('\n\n');
+    // if (terminal_width != stdout.terminalColumns) {
+    //   stdout.write('\x1B[2A\x1B[2K');
+    // }
     sleep(Duration(milliseconds: period));
     await Future.delayed(Duration());
     clear_frame();
-    
   }
 }

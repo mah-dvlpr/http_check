@@ -74,6 +74,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
   await animation_start();
+  sleep(Duration(seconds: 5));
 
   File file;
   List<String> lines, request, ignore, body, expected;
