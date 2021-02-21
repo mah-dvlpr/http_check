@@ -33,7 +33,10 @@ Future<void> _animate(SendPort sp) async {
   }
 
   void clearFrame() {
-    stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
+    stdout.write('\x1B[2K\x1B[1G');
+    if (terminalColumns > stdout.terminalColumns) {
+      stdout.write('\x1B[1A\x1B[2K\x1B[1G'); // Clear an extra line
+    }
   }
 
   while (true) {
@@ -42,12 +45,7 @@ Future<void> _animate(SendPort sp) async {
       nextFrame(frame % frames.length);
     }
     baseFrame = (baseFrame + 1) % frames.length;
-    // if (terminalColumns != stdout.terminalColumns) {
-    //   var linesToClear = terminalColumns ~/ stdout.terminalColumns;
-    //   stdout.write('\x1B[2K');
-    // }
-    stdout.write('\n\n');
-    sleep(Duration(milliseconds: period));
+    sleep(Duration(milliseconds: period*4));
     await Future.delayed(Duration());
     clearFrame();
   }
