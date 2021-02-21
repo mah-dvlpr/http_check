@@ -2,17 +2,18 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:isolate';
 
-Isolate animation_isolate;
+Isolate _animation_isolate;
 
 Future<Isolate> animation_start() async {
-  if (animation_isolate == null) {
-    animation_isolate = await Isolate.spawn(_animate, null);
+  if (_animation_isolate == null) {
+    _animation_isolate = await Isolate.spawn(_animate, null);
   }
-  return animation_isolate;
+  return _animation_isolate;
 }
 
 void animation_stop() {
-  animation_isolate.kill(priority: Isolate.immediate);
+  _animation_isolate.kill(priority: Isolate.immediate);
+  _animation_isolate = null;
 }
 
 Future<void> _animate(SendPort sp) async {
