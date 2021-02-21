@@ -25,7 +25,7 @@ Future<void> _animate(SendPort sp) async {
       '⠈'
     ];
   var baseFrame = 0;
-  var period = 10; // milliseconds
+  var period = 100; // milliseconds
 
   void nextFrame(int frame) {
     stdout.write('\x1B[1m${frames[frame]}\x1B[m');

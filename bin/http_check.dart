@@ -7,7 +7,6 @@ import 'package:http_check/http_check.dart';
 import 'package:meta/meta.dart';
 import 'package:args/args.dart' as arg;
 import 'package:http/http.dart' as http;
-import 'package:pedantic/pedantic.dart';
 
 import 'package:ansi_styles/ansi_styles.dart' as ansi_styles;
 import 'package:path/path.dart';
@@ -71,7 +70,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
 
 /// TODO: Add doc...
 Future<bool> run_once({@required List<String> file_paths}) async {
-  // print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
+  print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
   await animationStart();
   sleep(Duration(seconds: 20));
