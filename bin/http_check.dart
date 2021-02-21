@@ -40,8 +40,6 @@ void main(List<String> arguments) async {
     ..addFlag('generate', abbr: 'g')
     ..addFlag('help', abbr: 'h');
 
-  animation_isolate = await Isolate.spawn(animate, null, paused: true);
-
   try {
     final flags = parser.parse(arguments);
 
@@ -75,7 +73,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
 Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
-  animation_isolate.resume(animation_isolate.pauseCapability);
+  await animation_start();
 
   File file;
   List<String> lines, request, ignore, body, expected;
@@ -106,7 +104,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
 
   // Print results
   results = await Future.wait(futures);
-  animation_isolate.pause(animation_isolate.pauseCapability);
+  animation_stop();
   for (var i = 0; i < results.length; i++) {
     if (results[i]) {
       print('${ansi_styles.AnsiStyles.bold.greenBright('OK')}\t- ${names[i]}');

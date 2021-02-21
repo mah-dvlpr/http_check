@@ -2,7 +2,20 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:isolate';
 
-Future<void> animate(SendPort sp) async {
+Isolate animation_isolate;
+
+Future<Isolate> animation_start() async {
+  if (animation_isolate == null) {
+    animation_isolate = await Isolate.spawn(_animate, null);
+  }
+  return animation_isolate;
+}
+
+void animation_stop() {
+  animation_isolate.kill(priority: Isolate.immediate);
+}
+
+Future<void> _animate(SendPort sp) async {
   var frames = const <String>[
       '⠁',
       '⠂',
