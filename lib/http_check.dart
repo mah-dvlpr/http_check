@@ -5,7 +5,7 @@ import 'dart:isolate';
 Isolate _animation_isolate;
 
 Future<Isolate> animation_start() async {
-  return _animation_isolate ?? await Isolate.spawn(_animate, null);
+  return _animation_isolate ?? (_animation_isolate = await Isolate.spawn(_animate, null));
 }
 
 void animation_stop() {
