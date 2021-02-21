@@ -120,6 +120,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
     }
   }
 
+  rp.close();
   return true;
 }
 
