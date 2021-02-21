@@ -11,6 +11,7 @@ Future<Isolate> animationStart() async {
 void animationStop() {
   _animationIsolate.kill(priority: Isolate.immediate);
   _animationIsolate = null;
+  stdout.write('\n');
 }
 
 Future<void> _animate(SendPort sp) async {
@@ -36,7 +37,7 @@ Future<void> _animate(SendPort sp) async {
   }
 
   while (true) {
-    for (var frame = baseFrame; frame < stdout.terminalColumns + baseFrame; frame++) {
+    for (var frame = baseFrame; frame < stdout.terminalColumns ~/ 2 + baseFrame; frame++) {
       nextFrame(frame % frames.length);
     }
     baseFrame = (baseFrame + 1) % frames.length;
