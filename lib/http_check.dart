@@ -2,15 +2,15 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:isolate';
 
-Isolate _animation_isolate;
+Isolate _animationIsolate;
 
-Future<Isolate> animation_start() async {
-  return _animation_isolate ?? (_animation_isolate = await Isolate.spawn(_animate, null));
+Future<Isolate> animationStart() async {
+  return _animationIsolate ?? (_animationIsolate = await Isolate.spawn(_animate, null));
 }
 
-void animation_stop() {
-  _animation_isolate.kill(priority: Isolate.immediate);
-  _animation_isolate = null;
+void animationStop() {
+  _animationIsolate.kill(priority: Isolate.immediate);
+  _animationIsolate = null;
 }
 
 Future<void> _animate(SendPort sp) async {
@@ -24,30 +24,30 @@ Future<void> _animate(SendPort sp) async {
       '⠐',
       '⠈'
     ];
-  var base_frame = 0;
+  var baseFrame = 0;
   var period = 100; // milliseconds
-  var terminal_width = 0;
+  var terminalColumns = 0;
 
-  void next_frame(int frame) {
+  void nextFrame(int frame) {
     stdout.write('\x1B[1m${frames[frame]}\x1B[m');
   }
 
-  void clear_frame() {
+  void clearFrame() {
     stdout.write('\x1B[2A\x1B[2K\x1B[1G'); // Go up, clear, go to column 1
   }
 
   while (true) {
-    terminal_width = stdout.terminalColumns;
-    for (var frame = base_frame; frame < terminal_width + base_frame; frame++) {
-      next_frame(frame % frames.length);
+    terminalColumns = stdout.terminalColumns;
+    for (var frame = baseFrame; frame < terminalColumns + baseFrame; frame++) {
+      nextFrame(frame % frames.length);
     }
-    base_frame = (base_frame + 1) % frames.length;
+    baseFrame = (baseFrame + 1) % frames.length;
     stdout.write('\n\n');
     // if (terminal_width != stdout.terminalColumns) {
     //   stdout.write('\x1B[2A\x1B[2K');
     // }
     sleep(Duration(milliseconds: period));
     await Future.delayed(Duration());
-    clear_frame();
+    clearFrame();
   }
 }
