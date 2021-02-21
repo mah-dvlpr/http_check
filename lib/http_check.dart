@@ -42,10 +42,11 @@ Future<void> _animate(SendPort sp) async {
       nextFrame(frame % frames.length);
     }
     baseFrame = (baseFrame + 1) % frames.length;
-    stdout.write('\n\n');
-    // if (terminal_width != stdout.terminalColumns) {
-    //   stdout.write('\x1B[2A\x1B[2K');
+    // if (terminalColumns != stdout.terminalColumns) {
+    //   var linesToClear = terminalColumns ~/ stdout.terminalColumns;
+    //   stdout.write('\x1B[2K');
     // }
+    stdout.write('\n\n');
     sleep(Duration(milliseconds: period));
     await Future.delayed(Duration());
     clearFrame();
