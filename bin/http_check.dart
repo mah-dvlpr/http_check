@@ -73,7 +73,7 @@ Future<void> run_loop({@required List<String> file_paths}) async {
 Future<bool> run_once({@required List<String> file_paths}) async {
   print('========== New run at - ${DateTime.now().toString().substring(11,19)} ==========');
 
-  await animation_start();
+  await animationStart();
   sleep(Duration(seconds: 5));
 
   File file;
@@ -105,7 +105,7 @@ Future<bool> run_once({@required List<String> file_paths}) async {
 
   // Print results
   results = await Future.wait(futures);
-  animation_stop();
+  animationStop();
   for (var i = 0; i < results.length; i++) {
     if (results[i]) {
       print('${ansi_styles.AnsiStyles.bold.greenBright('OK')}\t- ${names[i]}');
